@@ -51,7 +51,7 @@ export class AuthService {
       throw new UnauthorizedException('Failed to communicate with mock-backend');
     }
   
-    return { message: 'User registered successfully', user };
+    return { message: 'User registered successfully' };
   }
   
 
