@@ -11,7 +11,7 @@ import { HttpModule } from '@nestjs/axios';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: 'secret_key',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
     HttpModule,

@@ -5,6 +5,7 @@ import { MockAuthService } from '../mock-auth/mock-auth.service';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
 
   constructor(
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     private readonly mockAuthService: MockAuthService,
     private readonly httpService: HttpService
   ) {}
@@ -70,8 +72,12 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id };
+    const secret = this.configService.get<string>('JWT_SECRET');
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        secret,
+        expiresIn: '1h',
+      }),
     };
   }
 }

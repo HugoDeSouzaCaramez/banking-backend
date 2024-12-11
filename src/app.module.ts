@@ -12,9 +12,14 @@ import { TransferModule } from './transfer/transfer.module';
 import { HttpModule } from '@nestjs/axios';
 import { MockAuthService } from './mock-auth/mock-auth.service';
 import { MockAuthModule } from './mock-auth/mock-auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
     AuthModule, 
     KycModule, 
     StatementModule, 
