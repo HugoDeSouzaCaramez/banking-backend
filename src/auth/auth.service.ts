@@ -16,30 +16,37 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
+
+    const emailExists = this.users.some((u) => u.email === createUserDto.email);
+    if (emailExists) {
+      throw new UnauthorizedException('Email already in use');
+    }
+  
     const user = {
       id: this.users.length + 1,
       ...createUserDto,
     };
     this.users.push(user);
-
+  
     const token = await this.mockAuthService.getMockToken();
-
+  
     try {
         const response = await lastValueFrom(
         this.httpService.post('http://localhost:8080/mock-account/open', {}, {
           headers: { Authorization: `Bearer ${token}` },
         })
       );
-
+  
       if (response.data.status !== 'ok') {
         throw new UnauthorizedException('Failed to create account in mock-backend');
       }
     } catch (error) {
       throw new UnauthorizedException('Failed to communicate with mock-backend');
     }
-
+  
     return { message: 'User registered successfully', user };
   }
+  
 
   async validateUser(email: string, password: string) {
     const user = this.users.find((u) => u.email === email && u.password === password);
