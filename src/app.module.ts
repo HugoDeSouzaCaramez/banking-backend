@@ -11,6 +11,7 @@ import { TransferController } from './transfer/transfer.controller';
 import { TransferModule } from './transfer/transfer.module';
 import { HttpModule } from '@nestjs/axios';
 import { MockAuthService } from './mock-auth/mock-auth.service';
+import { MockAuthModule } from './mock-auth/mock-auth.module';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { MockAuthService } from './mock-auth/mock-auth.service';
     KycModule, 
     StatementModule, 
     TransferModule, 
-    HttpModule
+    HttpModule, MockAuthModule
   ],
   controllers: [AppController, StatementController, TransferController],
   providers: [AppService, StatementService, TransferService, MockAuthService],

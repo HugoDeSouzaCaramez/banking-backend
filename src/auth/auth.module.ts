@@ -4,6 +4,8 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { MockAuthModule } from '../mock-auth/mock-auth.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       secret: 'secret_key',
       signOptions: { expiresIn: '1h' },
     }),
+    HttpModule,
+    MockAuthModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
