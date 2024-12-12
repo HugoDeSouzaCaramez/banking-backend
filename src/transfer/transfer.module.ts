@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from '@nestjs/axios';
-import { TransferService } from './transfer.service';
 import { TransferController } from './transfer.controller';
-import { MockAuthService } from 'src/mock-auth/mock-auth.service';
+import { TransferService } from './transfer.service';
+import { TransferHttpHelper } from './helpers/transfer-http.helper';
+import { HttpModule } from '@nestjs/axios';
+import { MockAuthModule } from '../mock-auth/mock-auth.module';
 
 @Module({
-    imports: [HttpModule],
-    providers: [TransferService, MockAuthService],
-    controllers: [TransferController],
+  imports: [HttpModule, MockAuthModule],
+  controllers: [TransferController],
+  providers: [TransferService, TransferHttpHelper],
 })
 export class TransferModule {}
