@@ -41,7 +41,7 @@ describe('TransferService', () => {
     };
   
     it('should successfully make a transfer', async () => {
-      const mockToken = 'mock-token';
+      const mockToken = 'mocked-access-token';
       const mockResponse = { status: 'ok' };
       jest.spyOn(mockAuthService, 'authenticate').mockResolvedValue(mockToken);
       jest.spyOn(transferHttpHelper, 'postTransfer').mockResolvedValue(mockResponse);
@@ -66,7 +66,7 @@ describe('TransferService', () => {
     });
   
     it('should throw BadRequestException if HTTP transfer fails', async () => {
-      const mockToken = 'mock-token';
+      const mockToken = 'mocked-access-token';
       const errorResponse = {
         response: {
           data: {
@@ -83,7 +83,7 @@ describe('TransferService', () => {
     });
   
     it('should throw BadRequestException with unknown error if HTTP fails without response', async () => {
-      const mockToken = 'mock-token';
+      const mockToken = 'mocked-access-token';
       jest.spyOn(mockAuthService, 'authenticate').mockResolvedValue(mockToken);
       jest.spyOn(transferHttpHelper, 'postTransfer').mockRejectedValue(new Error('Unknown error'));
   
