@@ -1,12 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-
-export interface User {
-  id: number;
-  email: string;
-  password: string;
-  fullName: string;
-}
+import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
