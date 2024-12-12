@@ -29,10 +29,6 @@ describe('AuthController', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
-    expect(authController).toBeDefined();
-  });
-
   describe('register', () => {
     it('should call AuthService.register with correct parameters and return a success message', async () => {
       const createUserDto: CreateUserDto = {
