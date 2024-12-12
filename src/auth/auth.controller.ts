@@ -14,7 +14,6 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
-    const user = await this.authService.validateUser(loginUserDto.email, loginUserDto.password);
-    return this.authService.login(user);
+    return this.authService.login(loginUserDto);
   }
 }
