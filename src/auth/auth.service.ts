@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from '../user/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MockAuthService } from '../mock-auth/mock-auth.service';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../user/user.service';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,11 +18,7 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    const existingUser = this.usersService.findByEmail(createUserDto.email);
-    if (existingUser) {
-      throw new UnauthorizedException('Email already in use');
-    }
-
+    this.ensureEmailNotInUse(createUserDto.email);
     const user = await this.usersService.createUser(
       createUserDto.email,
       createUserDto.password,
@@ -30,7 +26,51 @@ export class AuthService {
     );
 
     const token = await this.mockAuthService.getMockToken();
+    await this.createMockBackendAccount(token);
 
+    return { message: 'User registered successfully' };
+  }
+
+  async validateUser(email: string, password: string) {
+    const user = await this.getUserByEmail(email);
+    await this.ensureValidPassword(password, user.password);
+  
+    return { id: user.id, email: user.email };
+  }
+ 
+  async login(user: any) {
+    const payload = this.createJwtPayload(user);
+    const token = this.generateJwtToken(payload);
+
+    return { access_token: token };
+  }
+
+  private ensureEmailNotInUse(email: string) {
+    const existingUser = this.usersService.findByEmail(email);
+    if (existingUser) {
+      throw new UnauthorizedException('Email already in use');
+    }
+  }
+
+  private async getUserByEmail(email: string) {
+    const user = await this.usersService.findByEmail(email); // Adiciona await.
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    return user;
+  }
+
+  private async ensureValidPassword(password: string, hashedPassword: string) {
+    const isPasswordValid = await this.usersService.validatePassword(
+      password,
+      hashedPassword
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+  }
+
+  private async createMockBackendAccount(token: string) {
     try {
       const response = await lastValueFrom(
         this.httpService.post(
@@ -43,37 +83,26 @@ export class AuthService {
       );
 
       if (response.data.status !== 'ok') {
-        throw new UnauthorizedException('Failed to create account in mock-backend');
+        throw new UnauthorizedException(
+          'Failed to create account in mock-backend'
+        );
       }
     } catch (error) {
-      throw new UnauthorizedException('Failed to communicate with mock-backend');
+      throw new UnauthorizedException(
+        'Failed to communicate with mock-backend'
+      );
     }
-
-    return { message: 'User registered successfully' };
+  }
+  
+  private createJwtPayload(user: any) {
+    return { email: user.email, sub: user.id };
   }
 
-  async validateUser(email: string, password: string) {
-    const user = this.usersService.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    const isPasswordValid = await this.usersService.validatePassword(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    return { id: user.id, email: user.email };
-  }
-
-  async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
+  private generateJwtToken(payload: any) {
     const secret = this.configService.get<string>('JWT_SECRET');
-    return {
-      access_token: this.jwtService.sign(payload, {
-        secret,
-        expiresIn: '7m',
-      }),
-    };
+    return this.jwtService.sign(payload, {
+      secret,
+      expiresIn: '7m',
+    });
   }
 }
