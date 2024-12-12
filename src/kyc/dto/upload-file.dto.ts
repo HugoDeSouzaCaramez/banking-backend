@@ -1,4 +1,4 @@
-import { IsString, IsBase64 } from 'class-validator';
+import { IsString, IsBase64, IsIn } from 'class-validator';
 
 export class UploadFileDto {
   @IsString()
@@ -6,5 +6,6 @@ export class UploadFileDto {
   file: string;
 
   @IsString()
+  @IsIn(['document', 'selfie'], { message: 'fileType must be either "document" or "selfie"' })
   fileType: string;
 }

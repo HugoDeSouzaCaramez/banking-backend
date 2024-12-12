@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UploadFileDto } from './dto/upload-file.dto';
 
 @Injectable()
@@ -8,13 +8,10 @@ export class KycService {
   async uploadFile(userId: number, uploadFileDto: UploadFileDto) {
     const { file, fileType } = uploadFileDto;
 
-    if (!['document', 'selfie'].includes(fileType)) {
-      throw new BadRequestException('Invalid file type');
-    }
-
     if (!this.kycData[userId]) {
       this.kycData[userId] = {};
     }
+
     this.kycData[userId][fileType] = file;
 
     return {
