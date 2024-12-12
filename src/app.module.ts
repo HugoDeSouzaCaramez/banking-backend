@@ -13,6 +13,7 @@ import { HttpModule } from '@nestjs/axios';
 import { MockAuthService } from './mock-auth/mock-auth.service';
 import { MockAuthModule } from './mock-auth/mock-auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { UsersService } from './user/user.service';
 
 @Module({
   imports: [
@@ -27,6 +28,6 @@ import { ConfigModule } from '@nestjs/config';
     HttpModule, MockAuthModule
   ],
   controllers: [AppController, StatementController, TransferController],
-  providers: [AppService, StatementService, TransferService, MockAuthService],
+  providers: [AppService, StatementService, TransferService, MockAuthService, UsersService],
 })
 export class AppModule {}
