@@ -29,3 +29,5 @@ export class UsersService {
     return bcrypt.compare(password, hashedPassword);
   }
 }
+
+export { User } from './interfaces/user.interface';

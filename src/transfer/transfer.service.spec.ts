@@ -34,10 +34,6 @@ describe('TransferService', () => {
     transferHttpHelper = module.get<TransferHttpHelper>(TransferHttpHelper);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   describe('makeTransfer', () => {
     const transferDto: TransferDto = {
       recipientAccount: '67890',

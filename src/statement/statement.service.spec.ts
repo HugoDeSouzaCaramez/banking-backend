@@ -23,10 +23,6 @@ describe('StatementService', () => {
     mockHelper = module.get<StatementMockHelper>(StatementMockHelper);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   describe('generateStatement', () => {
     it('should call StatementMockHelper.getMockStatement with correct userId', () => {
       const userId = 1;
