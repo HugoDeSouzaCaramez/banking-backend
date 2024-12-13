@@ -7,22 +7,25 @@ import { KycFile } from '@prisma/client';
 export class KycService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async uploadFile(userId: number, uploadFileDto: UploadFileDto): Promise<KycFile> {
+  async uploadFile(userId: number, uploadFileDto: UploadFileDto): Promise<{ message: string; id: number }> {
     const { file, fileType } = uploadFileDto;
-
+  
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    return this.prisma.kycFile.create({
+  
+    const kycFile = await this.prisma.kycFile.create({
       data: {
         file,
         fileType,
         userId,
       },
     });
+  
+    return { message: 'File uploaded successfully', id: kycFile.id };
   }
+  
 
   async getKycFiles(userId: number): Promise<KycFile[]> {
     const user = await this.prisma.user.findUnique({

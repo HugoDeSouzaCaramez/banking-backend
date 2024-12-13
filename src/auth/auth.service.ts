@@ -33,7 +33,7 @@ export class AuthService {
     const accessToken = await this.getMockAuthToken();
     await this.openMockAccount(accessToken);
 
-    return { message: 'User registered successfully', user };
+    return { message: 'User registered successfully', id: user.id };
   }
 
   async validateUser(email: string, password: string) {
