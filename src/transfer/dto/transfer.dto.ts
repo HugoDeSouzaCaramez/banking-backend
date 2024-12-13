@@ -1,10 +1,16 @@
-import { IsString, IsNumber, IsPositive } from 'class-validator';
+import { IsString, IsNumber, IsPositive, IsNotEmpty } from 'class-validator';
 
 export class TransferDto {
-    @IsString()
-    recipientAccount: string;
+  @IsString()
+  @IsNotEmpty()
+  originAccount: string;
 
-    @IsNumber()
-    @IsPositive()
-    amount: number;
+  @IsString()
+  @IsNotEmpty()
+  recipientAccount: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  amount: number;
 }

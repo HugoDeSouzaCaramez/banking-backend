@@ -29,12 +29,14 @@ model Account {
 
 model Transfer {
   id               Int       @id @default(autoincrement())
+  originAccount    String
   recipientAccount String
   amount           Float
   userId           Int
   user             User      @relation(fields: [userId], references: [id])
   createdAt        DateTime  @default(now())
 }
+
 
 model KycFile {
   id        Int      @id @default(autoincrement())

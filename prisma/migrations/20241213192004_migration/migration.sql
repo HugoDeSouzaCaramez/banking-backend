@@ -19,6 +19,7 @@ CREATE TABLE "Account" (
 -- CreateTable
 CREATE TABLE "Transfer" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "originAccount" TEXT NOT NULL,
     "recipientAccount" TEXT NOT NULL,
     "amount" REAL NOT NULL,
     "userId" INTEGER NOT NULL,
