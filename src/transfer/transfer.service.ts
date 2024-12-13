@@ -18,7 +18,6 @@ export class TransferService {
   async makeTransfer(userId: number, transferDto: TransferDto): Promise<Transfer> {
     const { originAccount, recipientAccount, amount } = transferDto;
   
-    // Verifica se a conta de origem pertence ao usuário autenticado
     const userAccount = await this.prisma.account.findUnique({
       where: { userId },
     });
@@ -27,13 +26,11 @@ export class TransferService {
       throw new BadRequestException('Invalid origin account for the user');
     }
   
-    // Verifica se o usuário existe
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
   
-    // Realiza a transferência via HTTP
     try {
       const token = await this.mockAuthService.authenticate();
       await this.transferHttpHelper.postTransfer(this.transferUrl, token, transferDto);
@@ -43,10 +40,9 @@ export class TransferService {
       );
     }
   
-    // Registra a transferência no banco de dados
     return this.prisma.transfer.create({
       data: {
-        originAccount, // Inclui a conta de origem
+        originAccount,
         recipientAccount,
         amount,
         userId,
