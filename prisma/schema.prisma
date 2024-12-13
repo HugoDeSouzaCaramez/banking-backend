@@ -1,20 +1,30 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "sqlite"
   url      = "file:./database.sqlite"
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+
 model User {
-  id          Int       @id @default(autoincrement())
-  cpf         String    @unique
-  password    String
-  fullName    String
-  createdAt   DateTime  @default(now())
-  transfers   Transfer[]
-  kycFiles    KycFile[]
+  id        Int       @id @default(autoincrement())
+  cpf       String    @unique
+  password  String
+  fullName  String
+  createdAt DateTime  @default(now())
+  account   Account?  @relation("UserAccount")
+  transfers Transfer[]
+  kycFiles  KycFile[]
+}
+
+model Account {
+  id             Int      @id @default(autoincrement())
+  accountNumber  String   @unique
+  createdAt      DateTime @default(now())
+  user           User     @relation("UserAccount", fields: [userId], references: [id])
+  userId         Int      @unique
 }
 
 model Transfer {

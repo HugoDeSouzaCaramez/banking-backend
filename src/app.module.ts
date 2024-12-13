@@ -10,6 +10,7 @@ import { MockAuthModule } from './mock-auth/mock-auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PrismaModule } from './prisma/prisma.module';
     HttpModule,
     MockAuthModule,
     PrismaModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

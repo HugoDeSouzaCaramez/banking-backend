@@ -30,10 +30,27 @@ export class AuthService {
       },
     });
 
+    const accountNumber = `ACCT-${user.id}-${Date.now()}`;
+    await this.prisma.account.create({
+      data: {
+        accountNumber,
+        userId: user.id,
+      },
+    });
+
     const accessToken = await this.getMockAuthToken();
     await this.openMockAccount(accessToken);
 
-    return { message: 'User registered successfully', id: user.id };
+    const account = await this.prisma.account.findUnique({
+      where: { userId: user.id },
+    });
+  
+
+    return {
+      message: 'User registered successfully',
+      accountNumber: account.accountNumber,
+    };
+
   }
 
   async validateUser(cpf: string, password: string) {
