@@ -8,6 +8,7 @@ import { MockAuthModule } from '../mock-auth/mock-auth.module';
 import { HttpModule } from '@nestjs/axios';
 import { UsersService } from 'src/user/user.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { PrismaModule } from '../prisma/prisma.module';
     }),
     HttpModule,
     MockAuthModule,
-    PrismaModule
+    PrismaModule,
+    UserModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, UsersService],

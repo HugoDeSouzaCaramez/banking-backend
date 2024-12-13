@@ -1,7 +1,8 @@
+// src/auth/auth.service.ts
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { UserRepository } from 'src/user/repository/user.repository';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { HttpService } from '@nestjs/axios';
@@ -13,7 +14,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    private readonly userRepository: UserRepository,
     private readonly httpService: HttpService,
   ) {}
 
@@ -22,39 +23,24 @@ export class AuthService {
 
     await this.ensureCPFNotInUse(cpf);
 
-    const user = await this.prisma.user.create({
-      data: {
-        cpf,
-        password: await this.hashPassword(password),
-        fullName,
-      },
-    });
+    const user = await this.userRepository.createUser(cpf, password, fullName);
 
     const accountNumber = `ACCT-${user.id}-${Date.now()}`;
-    await this.prisma.account.create({
-      data: {
-        accountNumber,
-        userId: user.id,
-      },
-    });
+    await this.userRepository.createAccount(user.id, accountNumber);
 
     const accessToken = await this.getMockAuthToken();
     await this.openMockAccount(accessToken);
 
-    const account = await this.prisma.account.findUnique({
-      where: { userId: user.id },
-    });
-  
+    const account = await this.userRepository.findAccountByUserId(user.id);
 
     return {
       message: 'User registered successfully',
       accountNumber: account.accountNumber,
     };
-
   }
 
   async validateUser(cpf: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { cpf } });
+    const user = await this.userRepository.findUserByCPF(cpf);
 
     if (!user || !(await this.comparePasswords(password, user.password))) {
       throw new UnauthorizedException('Invalid cpf or password');
@@ -104,15 +90,10 @@ export class AuthService {
   }
 
   private async ensureCPFNotInUse(cpf: string) {
-    const existingUser = await this.prisma.user.findUnique({ where: { cpf } });
+    const existingUser = await this.userRepository.findUserByCPF(cpf);
     if (existingUser) {
       throw new ConflictException('CPF already in use');
     }
-  }
-
-  private async hashPassword(password: string): Promise<string> {
-    const saltRounds = 10;
-    return bcrypt.hash(password, saltRounds);
   }
 
   private async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
