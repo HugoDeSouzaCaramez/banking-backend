@@ -6,7 +6,6 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MockAuthModule } from '../mock-auth/mock-auth.module';
 import { HttpModule } from '@nestjs/axios';
-import { UsersService } from 'src/user/user.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from 'src/user/user.module';
 
@@ -23,6 +22,6 @@ import { UserModule } from 'src/user/user.module';
     UserModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, UsersService],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}
