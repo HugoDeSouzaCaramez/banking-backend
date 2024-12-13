@@ -33,4 +33,11 @@ export class UserRepository {
   async findAccountByUserId(userId: number) {
     return this.prisma.account.findUnique({ where: { userId } });
   }
+
+  async findUserWithTransfers(userId: number) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { transfers: true },
+    });
+  }
 }
