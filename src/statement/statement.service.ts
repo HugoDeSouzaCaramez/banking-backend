@@ -27,7 +27,7 @@ export class StatementService {
     return {
       user: {
         id: user.id,
-        email: user.email,
+        cpf: user.cpf,
         fullName: user.fullName,
       },
       statement,

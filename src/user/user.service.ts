@@ -9,21 +9,21 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const { email, password, fullName } = createUserDto;
+    const { cpf, password, fullName } = createUserDto;
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
     return this.prisma.user.create({
       data: {
-        email,
+        cpf,
         password: hashedPassword,
         fullName,
       },
     });
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { email } });
+  async findByEmail(cpf: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { cpf } });
   }
 
   async validatePassword(password: string, hashedPassword: string): Promise<boolean> {

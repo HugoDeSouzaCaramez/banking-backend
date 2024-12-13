@@ -16,7 +16,7 @@ describe('UsersService', () => {
 
   describe('createUser', () => {
     it('should create a user with hashed password', async () => {
-      const email = 'test@test.com';
+      const cpf = 'test@test.com';
       const password = 'passwordtest';
       const fullName = 'Test User';
       const salt = 'mockSalt';
@@ -25,11 +25,11 @@ describe('UsersService', () => {
       (jest.spyOn(bcrypt, 'genSalt') as jest.Mock).mockResolvedValue(salt);
       (jest.spyOn(bcrypt, 'hash') as jest.Mock).mockResolvedValue(hashedPassword);
 
-      const user = await service.createUser(email, password, fullName);
+      const user = await service.createUser(cpf, password, fullName);
 
       expect(user).toEqual({
         id: 1,
-        email,
+        cpf,
         password: hashedPassword,
         fullName,
       });
@@ -39,17 +39,17 @@ describe('UsersService', () => {
   });
 
   describe('findByEmail', () => {
-    it('should return a user if email exists', async () => {
-      const email = 'test@test.com';
+    it('should return a user if cpf exists', async () => {
+      const cpf = 'test@test.com';
       const user: User = {
         id: 1,
-        email,
+        cpf,
         password: 'mockHashedPassword',
         fullName: 'Test User',
       };
-      await service.createUser(user.email, 'passwordtest', user.fullName);
+      await service.createUser(user.cpf, 'passwordtest', user.fullName);
   
-      const foundUser = await service.findByEmail(email);
+      const foundUser = await service.findByEmail(cpf);
   
       expect(foundUser).toEqual(user);
     });

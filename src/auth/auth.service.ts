@@ -18,13 +18,13 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    const { email, password, fullName } = createUserDto;
+    const { cpf, password, fullName } = createUserDto;
 
-    await this.ensureEmailNotInUse(email);
+    await this.ensureCPFNotInUse(cpf);
 
     const user = await this.prisma.user.create({
       data: {
-        email,
+        cpf,
         password: await this.hashPassword(password),
         fullName,
       },
@@ -36,18 +36,18 @@ export class AuthService {
     return { message: 'User registered successfully', id: user.id };
   }
 
-  async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+  async validateUser(cpf: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { cpf } });
 
     if (!user || !(await this.comparePasswords(password, user.password))) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid cpf or password');
     }
 
-    return { id: user.id, email: user.email };
+    return { id: user.id, cpf: user.cpf };
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const user = await this.validateUser(loginUserDto.email, loginUserDto.password);
+    const user = await this.validateUser(loginUserDto.cpf, loginUserDto.password);
     const payload = this.createJwtPayload(user);
 
     const token = this.generateJwtToken(payload);
@@ -86,10 +86,10 @@ export class AuthService {
     }
   }
 
-  private async ensureEmailNotInUse(email: string) {
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+  private async ensureCPFNotInUse(cpf: string) {
+    const existingUser = await this.prisma.user.findUnique({ where: { cpf } });
     if (existingUser) {
-      throw new ConflictException('Email already in use');
+      throw new ConflictException('CPF already in use');
     }
   }
 
@@ -103,7 +103,7 @@ export class AuthService {
   }
 
   private createJwtPayload(user: any) {
-    return { email: user.email, sub: user.id };
+    return { cpf: user.cpf, sub: user.id };
   }
 
   private generateJwtToken(payload: any) {

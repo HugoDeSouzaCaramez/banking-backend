@@ -1,10 +1,11 @@
-import { IsString, IsEmail, MinLength } from 'class-validator';
+import { IsString, MinLength, Matches } from 'class-validator';
 
 export class LoginUserDto {
-  @IsEmail()
-  email: string;
+  @IsString()
+  @Matches(/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, { message: 'CPF must be in the format XXX.XXX.XXX-XX' })
+  cpf: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(8)
   password: string;
 }

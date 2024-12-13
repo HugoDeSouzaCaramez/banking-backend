@@ -2,8 +2,8 @@ import { IsString, IsEmail, MinLength, Matches } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  @IsEmail()
-  email: string;
+  @Matches(/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, { message: 'CPF must be in the format XXX.XXX.XXX-XX' })
+  cpf: string;
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })

@@ -32,7 +32,7 @@ describe('AuthController', () => {
   describe('register', () => {
     it('should call AuthService.register with correct parameters and return a success message', async () => {
       const createUserDto: CreateUserDto = {
-        email: 'test@example.com',
+        cpf: 'test@example.com',
         password: 'password123',
         fullName: 'Test User',
       };
@@ -45,23 +45,23 @@ describe('AuthController', () => {
       expect(response).toEqual(result);
     });
 
-    it('should throw ConflictException if email is already in use', async () => {
+    it('should throw ConflictException if cpf is already in use', async () => {
       const createUserDto: CreateUserDto = {
-        email: 'test@example.com',
+        cpf: 'test@example.com',
         password: 'password123',
         fullName: 'Test User',
       };
-      jest.spyOn(authService, 'register').mockRejectedValue(new ConflictException('Email already in use'));
+      jest.spyOn(authService, 'register').mockRejectedValue(new ConflictException('CPF already in use'));
 
       await expect(authController.register(createUserDto)).rejects.toThrow(ConflictException);
-      await expect(authController.register(createUserDto)).rejects.toThrow('Email already in use');
+      await expect(authController.register(createUserDto)).rejects.toThrow('CPF already in use');
     });
   });
 
   describe('login', () => {
     it('should call AuthService.login with correct parameters and return an access token', async () => {
       const loginUserDto: LoginUserDto = {
-        email: 'test@example.com',
+        cpf: 'test@example.com',
         password: 'password123',
       };
       const result = { access_token: 'some-token' };
@@ -75,13 +75,13 @@ describe('AuthController', () => {
 
     it('should throw UnauthorizedException if credentials are invalid', async () => {
       const loginUserDto: LoginUserDto = {
-        email: 'test@example.com',
+        cpf: 'test@example.com',
         password: 'wrongpassword',
       };
-      jest.spyOn(authService, 'login').mockRejectedValue(new UnauthorizedException('Invalid email or password'));
+      jest.spyOn(authService, 'login').mockRejectedValue(new UnauthorizedException('Invalid cpf or password'));
 
       await expect(authController.login(loginUserDto)).rejects.toThrow(UnauthorizedException);
-      await expect(authController.login(loginUserDto)).rejects.toThrow('Invalid email or password');
+      await expect(authController.login(loginUserDto)).rejects.toThrow('Invalid cpf or password');
     });
   });
 });
