@@ -8,6 +8,6 @@ import { AccountRepository } from './repository/account.repository';
   imports: [PrismaModule],
   providers: [AccountService, AccountRepository],
   controllers: [AccountController],
-  exports: [AccountService],
+  exports: [AccountService, AccountRepository],
 })
 export class AccountModule {}
