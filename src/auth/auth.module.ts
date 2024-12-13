@@ -7,6 +7,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { MockAuthModule } from '../mock-auth/mock-auth.module';
 import { HttpModule } from '@nestjs/axios';
 import { UsersService } from 'src/user/user.service';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { UsersService } from 'src/user/user.service';
       signOptions: { expiresIn: '7m' },
     }),
     HttpModule,
-    MockAuthModule
+    MockAuthModule,
+    PrismaModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, UsersService],

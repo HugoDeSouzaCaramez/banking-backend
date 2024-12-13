@@ -1,22 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { KycFile } from '@prisma/client';
 
 @Injectable()
 export class KycService {
-  private kycData = {};
+  constructor(private readonly prisma: PrismaService) {}
 
-  async uploadFile(userId: number, uploadFileDto: UploadFileDto) {
+  async uploadFile(userId: number, uploadFileDto: UploadFileDto): Promise<KycFile> {
     const { file, fileType } = uploadFileDto;
 
-    if (!this.kycData[userId]) {
-      this.kycData[userId] = {};
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
-    this.kycData[userId][fileType] = file;
+    return this.prisma.kycFile.create({
+      data: {
+        file,
+        fileType,
+        userId,
+      },
+    });
+  }
 
-    return {
-      message: `${fileType} uploaded successfully`,
-      kycData: this.kycData[userId],
-    };
+  async getKycFiles(userId: number): Promise<KycFile[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { kycFiles: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.kycFiles;
   }
 }

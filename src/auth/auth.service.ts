@@ -1,41 +1,45 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../user/user.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly usersService: UsersService,
+    private readonly prisma: PrismaService,
     private readonly httpService: HttpService,
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    await this.ensureEmailNotInUse(createUserDto.email);
+    const { email, password, fullName } = createUserDto;
 
-    const user = await this.usersService.createUser(
-      createUserDto.email,
-      createUserDto.password,
-      createUserDto.fullName,
-    );
+    await this.ensureEmailNotInUse(email);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password: await this.hashPassword(password),
+        fullName,
+      },
+    });
 
     const accessToken = await this.getMockAuthToken();
     await this.openMockAccount(accessToken);
 
-    return { message: 'User registered successfully' };
+    return { message: 'User registered successfully', user };
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.getUserByEmail(email);
-    const isPasswordValid = await this.usersService.validatePassword(password, user.password);
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
-    if (!isPasswordValid) {
+    if (!user || !(await this.comparePasswords(password, user.password))) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
@@ -83,18 +87,19 @@ export class AuthService {
   }
 
   private async ensureEmailNotInUse(email: string) {
-    const existingUser = await this.usersService.findByEmail(email);
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
   }
 
-  private async getUserByEmail(email: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-    return user;
+  private async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
+  }
+
+  private async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
   }
 
   private createJwtPayload(user: any) {

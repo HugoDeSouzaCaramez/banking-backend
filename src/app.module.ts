@@ -8,6 +8,8 @@ import { TransferModule } from './transfer/transfer.module';
 import { HttpModule } from '@nestjs/axios';
 import { MockAuthModule } from './mock-auth/mock-auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { PrismaService } from './prisma/prisma.service';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -21,8 +23,9 @@ import { ConfigModule } from '@nestjs/config';
     TransferModule,
     HttpModule,
     MockAuthModule,
+    PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
