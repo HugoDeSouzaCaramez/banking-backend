@@ -2,8 +2,8 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { TransferDto } from './dto/transfer.dto';
 import { MockAuthService } from '../mock-auth/mock-auth.service';
 import { TransferHttpHelper } from './helpers/transfer-http.helper';
-import { PrismaService } from '../prisma/prisma.service';
 import { AccountRepository } from 'src/account/repository/account.repository';
+import { TransferRepository } from './repository/transfer.repository';
 import { Transfer } from '@prisma/client';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class TransferService {
   constructor(
     private readonly mockAuthService: MockAuthService,
     private readonly transferHttpHelper: TransferHttpHelper,
-    private readonly prisma: PrismaService,
     private readonly accountRepository: AccountRepository,
+    private readonly transferRepository: TransferRepository,
   ) {}
 
   async makeTransfer(userId: number, transferDto: TransferDto): Promise<Transfer> {
@@ -26,11 +26,6 @@ export class TransferService {
       throw new BadRequestException('Invalid origin account for the user');
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
     try {
       const token = await this.mockAuthService.authenticate();
       await this.transferHttpHelper.postTransfer(this.transferUrl, token, transferDto);
@@ -40,26 +35,6 @@ export class TransferService {
       );
     }
 
-    return this.prisma.transfer.create({
-      data: {
-        originAccount,
-        recipientAccount,
-        amount,
-        userId,
-      },
-    });
-  }
-
-  async getUserTransfers(userId: number): Promise<Transfer[]> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { transfers: true },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user.transfers;
+    return this.transferRepository.createTransfer(originAccount, recipientAccount, amount, userId);
   }
 }
