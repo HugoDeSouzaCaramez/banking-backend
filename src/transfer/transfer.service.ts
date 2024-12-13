@@ -14,8 +14,8 @@ export class TransferService {
 
   async makeTransfer(transferDto: TransferDto) {
     try {
-      const token = await this.mockAuthService.authenticate();
-      return await this.transferHttpHelper.postTransfer(
+        const token = await this.mockAuthService.authenticate();
+        return await this.transferHttpHelper.postTransfer(
         this.transferUrl,
         token,
         transferDto
