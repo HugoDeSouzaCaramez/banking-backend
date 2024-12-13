@@ -1,27 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { StatementMockHelper } from './helpers/statement-mock.helper';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class StatementService {
   constructor(
-    private readonly statementMockHelper: StatementMockHelper,
     private readonly prisma: PrismaService,
   ) {}
 
-  async generateStatement(userId: number) {
+  async generateStatement(userId: number): Promise<{ user: any; statement: any[] }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        transfers: true,
-      },
+      include: { transfers: true },
     });
   
     if (!user) {
       throw new NotFoundException('User not found');
     }
   
-    const mockStatement = this.statementMockHelper.getMockStatement(user.id);
+    const statement = user.transfers.map((transfer) => ({
+      id: transfer.id,
+      recipientAccount: transfer.recipientAccount,
+      amount: transfer.amount,
+      date: transfer.createdAt,
+    }));
   
     return {
       user: {
@@ -29,8 +30,9 @@ export class StatementService {
         email: user.email,
         fullName: user.fullName,
       },
-      statement: mockStatement,
+      statement,
     };
   }
+  
   
 }
