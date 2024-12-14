@@ -4,39 +4,34 @@ import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class MockAuthService {
-    private accessToken: string;
+  private accessToken: string;
+  private tokenExpiry: number;
 
-    constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) {}
 
-    async authenticate() {
-        if (this.accessToken) return this.accessToken;
-
-        const url = 'http://localhost:8080/mock-auth/token';
-        const payload = { client_id: 'test', client_secret: 'secret' };
-
-        try {
-            const response = await lastValueFrom(
-                this.httpService.post(url, payload)
-            );
-            this.accessToken = response.data.access_token;
-            return this.accessToken;
-        } catch (error) {
-            throw new UnauthorizedException('Authentication with mock-backend failed');
-        }
+  async getAuthToken(): Promise<string> {
+    if (this.isTokenValid()) {
+      return this.accessToken;
     }
 
-    async getMockToken(): Promise<string> {
-        if (this.accessToken) return this.accessToken;
+    return this.authenticate();
+  }
 
-        const url = 'http://localhost:8080/mock-auth/token';
-        const payload = { client_id: 'test', client_secret: 'secret' };
+  private async authenticate(): Promise<string> {
+    const url = 'http://localhost:8080/mock-auth/token';
+    const payload = { client_id: 'test', client_secret: 'secret' };
 
-        try {
-            const response = await lastValueFrom(this.httpService.post(url, payload));
-            this.accessToken = response.data.access_token;
-            return this.accessToken;
-        } catch (error) {
-            throw new UnauthorizedException('Failed to authenticate with mock-backend');
-        }
+    try {
+      const response = await lastValueFrom(this.httpService.post(url, payload));
+      this.accessToken = response.data.access_token;
+      this.tokenExpiry = Date.now() + response.data.expires_in * 1000;
+      return this.accessToken;
+    } catch (error) {
+      throw new UnauthorizedException('Authentication with mock-backend failed');
     }
+  }
+
+  private isTokenValid(): boolean {
+    return this.accessToken && this.tokenExpiry > Date.now();
+  }
 }

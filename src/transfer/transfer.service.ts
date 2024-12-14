@@ -19,22 +19,23 @@ export class TransferService {
 
   async makeTransfer(userId: number, transferDto: TransferDto): Promise<Transfer> {
     const { originAccount, recipientAccount, amount } = transferDto;
-
+  
     const userAccount = await this.accountRepository.findAccountByUserId(userId);
-
+  
     if (!userAccount || userAccount.accountNumber !== originAccount) {
       throw new BadRequestException('Invalid origin account for the user');
     }
-
+  
     try {
-      const token = await this.mockAuthService.authenticate();
+      const token = await this.mockAuthService.getAuthToken();
       await this.transferHttpHelper.postTransfer(this.transferUrl, token, transferDto);
     } catch (error) {
       throw new BadRequestException(
         'Transfer failed: ' + (error.response?.data?.message || 'Unknown error'),
       );
     }
-
+  
     return this.transferRepository.createTransfer(originAccount, recipientAccount, amount, userId);
   }
+  
 }

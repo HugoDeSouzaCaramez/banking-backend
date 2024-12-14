@@ -7,6 +7,7 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import * as bcrypt from 'bcrypt';
+import { MockAuthService } from '../mock-auth/mock-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly userRepository: UserRepository,
     private readonly httpService: HttpService,
+    private readonly mockAuthService: MockAuthService
   ) {}
 
   async register(createUserDto: CreateUserDto) {
@@ -58,31 +60,21 @@ export class AuthService {
   }
 
   private async getMockAuthToken(): Promise<string> {
-    const clientId = 'test';
-    const clientSecret = 'secret';
-    const response = await lastValueFrom(
-      this.httpService.post('http://localhost:8080/mock-auth/token', {
-        client_id: clientId,
-        client_secret: clientSecret,
-      }),
-    );
-
-    return response.data.access_token;
+    return this.mockAuthService.getAuthToken();
   }
 
   private async openMockAccount(accessToken: string) {
+    const token = await this.mockAuthService.getAuthToken();
     const response = await lastValueFrom(
       this.httpService.post(
         'http://localhost:8080/mock-account/open',
         {},
         {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       ),
     );
-
+  
     if (response.data.status !== 'ok') {
       throw new Error('Failed to open mock account');
     }
