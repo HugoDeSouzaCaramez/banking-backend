@@ -64,10 +64,11 @@ export class AuthService {
   }
 
   private async openMockAccount(accessToken: string) {
+    const accountUrl = this.configService.get<string>('MOCK_ACCOUNT_URL');
     const token = await this.mockAuthService.getAuthToken();
     const response = await lastValueFrom(
       this.httpService.post(
-        'http://localhost:8080/mock-account/open',
+        accountUrl,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
