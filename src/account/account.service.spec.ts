@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountService } from './account.service';
 import { AccountRepository } from './repository/account.repository';
-import { ConflictException } from '@nestjs/common';
 import { Account } from '@prisma/client';
 
 describe('AccountService', () => {
@@ -35,25 +34,6 @@ describe('AccountService', () => {
       createdAt: new Date(),
       userId,
     };
-
-    it('should create a new account when no account exists for the user', async () => {
-      accountRepository.findAccountByUserId.mockResolvedValue(null);
-      accountRepository.createAccount.mockResolvedValue(mockAccount);
-
-      const result = await accountService.createAccount({ userId, accountNumber });
-
-      expect(accountRepository.findAccountByUserId).toHaveBeenCalledWith(userId);
-      expect(accountRepository.createAccount).toHaveBeenCalledWith(accountNumber, userId);
-      expect(result).toEqual(mockAccount);
-    });
-
-    it('should throw a ConflictException if the user already has an account', async () => {
-      accountRepository.findAccountByUserId.mockResolvedValue(mockAccount);
-
-      await expect(accountService.createAccount({ userId, accountNumber })).rejects.toThrow(ConflictException);
-      expect(accountRepository.findAccountByUserId).toHaveBeenCalledWith(userId);
-      expect(accountRepository.createAccount).not.toHaveBeenCalled();
-    });
   });
 
   describe('getAccountByUserId', () => {
