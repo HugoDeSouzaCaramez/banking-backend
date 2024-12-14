@@ -6,7 +6,7 @@ Requisitos
 
 Node.js v18.20.4 ou superior
 
-Gerenciador de pacotes npm
+Gerenciador de pacotes npm ou yarn
 
 SQLite para banco de dados
 
@@ -83,7 +83,40 @@ Criação de conta:
 
 http://localhost:8080/mock-account/open
 
-Verifique se as portas não estão em uso antes de iniciar o mock backend.
+Ajuste no Dockerfile do Mock Backend
+
+Foi necessário ajustar o Dockerfile do mock backend para garantir a integração correta com o backend principal. A alteração consistiu em substituir:
+
+Dockerfile Original:
+
+FROM node:14-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY src ./src
+EXPOSE 8080
+CMD ["npm", "start"]
+
+Dockerfile Ajustado:
+
+FROM node:14-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . ./
+EXPOSE 8080
+CMD ["node", "index.js"]
+
+Justificativa do Ajuste
+
+Incompatibilidade de estrutura: O mock backend original utilizava a pasta src diretamente, enquanto o backend principal esperava que todos os arquivos estivessem na raiz do contêiner.
+
+Execução do servidor: Alterei o comando de inicialização para garantir que o arquivo principal (index.js) fosse executado corretamente.
+
+Certifique-se de recriar a imagem Docker após o ajuste:
+
+docker build -t mock-backend .
+docker run -p 8080:8080 mock-backend
 
 Dependências Principais
 
@@ -107,4 +140,4 @@ A documentação Swagger está configurada para incluir autenticação JWT.
 
 Use o Insomnia ou ferramentas semelhantes para testar os endpoints manualmente, caso prefira.
 
-Para dúvidas ou melhorias, entre em contato com o desenvolvedor.
+Para dúvidas ou melhorias, entre em contato.
