@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MockAuthService } from '../mock-auth/mock-auth.service';
 import { TransferHttpHelper } from './helpers/transfer-http.helper';
-import { AccountRepository } from 'src/account/repository/account.repository';
+import { AccountRepository } from '../account/repository/account.repository';
 import { TransferRepository } from './repository/transfer.repository';
 import { TransferDto } from './dto/transfer.dto';
 import { Transfer } from '@prisma/client';
