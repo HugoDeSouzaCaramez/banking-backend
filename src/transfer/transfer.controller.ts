@@ -8,9 +8,9 @@ export class TransferController {
     constructor(private readonly transferService: TransferService) {}
 
     @UseGuards(JwtAuthGuard)
-@Post()
-async makeTransfer(@Body() transferDto: TransferDto, @Req() req: any) {
-  const userId = req.user.id;
-  return this.transferService.makeTransfer(userId, transferDto);
-}
+    @Post()
+    async makeTransfer(@Body() transferDto: TransferDto, @Req() req: any) {
+      const userId = req.user.id;
+      return this.transferService.makeTransfer(userId, transferDto);
+    }
 }
